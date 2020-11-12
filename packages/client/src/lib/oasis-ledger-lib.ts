@@ -33,7 +33,7 @@ const OASIS_API = {
   TRANSFER_SEND: `${ENV.SERVER_URL}/api/oasis/transfer/send`,
   // Delegate:
   DELEGATE: `${ENV.SERVER_URL}/api/oasis/delegate`,
-  DELEGATE_SEND: `${ENV.SERVER_URL}/api/oasis/delegate/send`,
+  DELEGATE_SEND: `${ENV.SERVER_URL}/api/oasis/transfer/send`,
   // Undelegate:
   UNDELEGATE: `${ENV.SERVER_URL}/api/oasis/undelegate`,
   UNDELEGATE_SEND: `${ENV.SERVER_URL}/api/oasis/undelegate/send`,
@@ -195,13 +195,32 @@ class OasisLedgerClass implements IOasisLedger {
     return SampleTransactionReceipt;
   }
 
+  async getDelegatePayload(args: OasisTransferArgs) {
+    console.log("getDelegatePayload: ", args);
+
+    const payload = {
+      ...args,
+      amount: parseInt(args.amount),
+      gas: { amount: 2000, limit: 2269 },
+    };
+
+    const response = await fetch(OASIS_API.TRANSFER, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    return data;
+  }
+
   async getTransferPayload(args: OasisTransferArgs) {
     console.log("getTransferPayload: ", args);
 
     const payload = {
       ...args,
       amount: parseInt(args.amount),
-      gas: { amount: 10, limit: 1500 }, // TODO: What is the fee?
+      gas: { amount: 10, limit: 1500 },
     };
 
     const response = await fetch(OASIS_API.TRANSFER, {
